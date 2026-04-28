@@ -1,0 +1,31 @@
+# Environments (Keep secrets local!)
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# dbt artifacts and logs
+analytics/target/
+analytics/dbt_packages/
+analytics/logs/
+analytics/dbt.log
+
+# Dagster local/temporary state
+logs/
+.tmp_dagster_home_*/
+.local_defs_state/
+*.tmp
+
+# IDE / OS Files
+.vscode/
+.idea/
+.DS_Store
