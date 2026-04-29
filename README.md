@@ -195,6 +195,48 @@ EXECUTE DBT PROJECT TAXI_DATA.DEV.DAGSTER_V1 ARGS = 'build';
 EXECUTE DBT PROJECT TAXI_DATA.PROD.DAGSTER_V1 ARGS = 'build';
 ```
 
+## Factors Impacting Data Pipeline Complexity
+
+The following dimensions contribute to a more complex production data pipeline. They represent potential areas of growth beyond this project's current scope.
+
+### Transformation Complexity
+
+- Multiple source systems (APIs, databases, files, streams)
+- Incremental models with merge logic rather than full refreshes
+- Snapshots (SCD Type 2) for tracking historical changes
+- Intermediate models between staging and marts
+- Complex joins across many fact/dimension tables
+- Window functions, recursive CTEs, or multi-step business logic
+- dbt macros with conditional logic and dynamic SQL generation
+- Custom materializations or hooks
+
+### Ingestion Complexity
+
+- Multiple assets with varied schedules and dependencies
+- Partitioned ingestion (date-based, incremental loads)
+- Schema evolution handling
+- Data quality checks/sensors that gate downstream processing
+- Retry logic, backfills, and failure handling
+- Multiple file formats and source types in one pipeline
+
+### Dagster Orchestration Complexity
+
+- Asset partitions (daily/hourly)
+- Sensors triggering on external events (new files, webhooks)
+- Conditional branching in the DAG
+- Cross-job dependencies
+- Resource-level configuration per environment
+- Observable source assets with freshness policies
+- Multi-code-location deployments
+
+### Data Modeling Complexity
+
+- Star/snowflake schema with multiple facts and dimensions
+- Mart-level tests with `dbt_expectations` or `dbt_utils`
+- Exposures tied to dashboards
+- Semantic layer definitions
+- Multiple downstream marts serving different teams
+
 ## Resources
 
 - [Dagster Documentation](https://docs.dagster.io/)
