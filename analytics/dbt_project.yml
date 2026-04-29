@@ -12,6 +12,8 @@ snapshot-paths: ["snapshots"]
 
 models:
   analytics:
+    example:
+      +enabled: false
     staging:
       +materialized: view
       +schema: DBT

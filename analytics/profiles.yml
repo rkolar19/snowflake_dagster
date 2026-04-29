@@ -3,11 +3,19 @@ analytics:
   outputs:
     dev:
       type: snowflake
-      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
-      user: "{{ env_var('SNOWFLAKE_USER') }}"
-      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      account: 'not needed'
+      user: 'not needed'
       role: ACCOUNTADMIN
       warehouse: TAXI_WH
       database: TAXI_DATA
       schema: DBT
       threads: 4
+    prod:
+      type: snowflake
+      account: 'not needed'
+      user: 'not needed'
+      role: ACCOUNTADMIN
+      warehouse: TAXI_WH
+      database: TAXI_DATA
+      schema: PROD
+      threads: 4      
