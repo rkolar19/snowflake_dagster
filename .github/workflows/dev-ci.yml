@@ -52,9 +52,13 @@ jobs:
         run: |
           uv run dg check defs
 
+      - name: Run Python tests
+        run: |
+          uv run pytest tests/ -v
+
       # Optional: Uncomment the following lines if you want CI to actually execute your models
       # against Snowflake every time you push. Be aware this will modify your TAXI_DATA database.
-      # - name: Run dbt build
+      # - name: Run dbt build (includes dbt test)
       #   working-directory: ./analytics
       #   run: |
       #     uv run dbt build

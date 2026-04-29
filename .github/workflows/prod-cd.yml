@@ -1,0 +1,90 @@
+name: Dagster/dbt Prod Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate before deploy
+    runs-on: ubuntu-latest
+
+    env:
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      DAGSTER_HOME: ${{ github.workspace }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install Dependencies
+        run: |
+          uv sync --all-extras
+
+      - name: Parse and Compile dbt models
+        working-directory: ./analytics
+        run: |
+          uv run dbt parse
+
+      - name: Validate Dagster Definitions
+        run: |
+          uv run dg check defs
+
+      - name: Run Python tests
+        run: |
+          uv run pytest tests/ -v
+
+  deploy:
+    name: Deploy to production
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: prod
+
+    env:
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install Dependencies
+        run: |
+          uv sync --all-extras
+
+      - name: Run dbt build against prod
+        working-directory: ./analytics
+        run: |
+          uv run dbt build --target prod
+
+      - name: Deploy dbt project to Snowflake
+        run: |
+          pip install snowflake-cli
+          snow dbt deploy DAGSTER_V1 --source ./analytics --default-target prod --dbt-version 1.10.15 --force -x
